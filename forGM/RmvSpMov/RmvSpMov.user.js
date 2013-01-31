@@ -15,14 +15,18 @@
 // @include     http://cm.sprasia.jp/*
 // @include     https://cm.sprasia.com/*
 // @include     http://cm.sprasia.com/*
-// @version     1
+// @version     1.01
 // ==/UserScript==
 /*
- * Author roy
+ * Author roy "kugel" nk
  */
 (function(){
 	// Remove list.
 	var _removeList = new Array("#introPlayer", "div.player_area");
+	// Removed html.
+	var _removedHtml;
+	// Close button.
+	var _cls;
 	
 	// Search element.
 	var _e = function(s) {
@@ -47,13 +51,54 @@
 	var _main = function() {
 		console.log("_main() start");
 		
-		player = null;
 		for (var i=0; i<_removeList.length; i++) {
 			if ( _e(_removeList[i]) != null ) {
-				_e(_removeList[i]).innerHTML = "fus ro dah!";
+				// Keep removed html.
+				if (_removedHtml == null) {
+					_removedHtml = _e(_removeList[i]).innerHTML;
+				}
+				
+				// Swap inner html.
+				_e(_removeList[i]).innerHTML = "fus ro dah! ";
+				
+				// Add A tag.
+				a = document.createElement('a');
+				a.innerHTML = 'open';
+				a.rel = _removeList[i];
+				a.onclick = function(){
+					_open(this.rel);
+					console.log('open button clicked.');
+					return false;
+				};
+				
+				// Append.
+				_e(_removeList[i]).appendChild(a);
 			}
 		}
 	}
+	// Open movie.
+	var _open = function(target) {
+		if (_removedHtml) {
+			_e(target).innerHTML = _removedHtml;
+			
+			if (_cls==null) {
+				// Create close button.
+				_cls = document.createElement('a');
+				_cls.innerHTML = 'close';
+				_cls.style.clear = "both";
+				
+				_cls.onclick = function(){
+					_main();
+					console.log('close button clicked.');
+					return false;
+				};
+			}
+			
+			// Append close button.
+			_e(target).appendChild(_cls);
+		}
+	};
+	
 	// Execute.
 	_main();
 })();
